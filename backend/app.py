@@ -5,15 +5,15 @@ import pandas as pd  # For data manipulation
 from flask import Flask, request, jsonify  # For creating the Flask API
 
 # Initialize Flask app with a name
-superkart_api = Flask("Superkart Sale Prediction") 
+superkart_api = Flask("Superkart Sale Prediction")
 
-# Load the trained model pipeline 
-model = joblib.load("../backend_files/superkart_model_v1_0.joblib") 
+# Load the trained model pipeline
+model = joblib.load("../backend_files/superkart_model_v1_0.joblib")
 
 # Define a route for the home page
 @superkart_api.get('/')
 def home():
-    return "Welcome to the SuperKart Sales Prediction API!" 
+    return "Welcome to the SuperKart Sales Prediction API!"
 
 # Define an endpoint for predict sales
 @superkart_api.post('/v1/predict')
@@ -21,7 +21,9 @@ def predict_sales():
     # Get JSON data from the request
     data = request.get_json()
 
-    # Extract relevant customer features from the input data.
+    # Extract relevant features from the input data, matching the model's training features.
+    # Product_Id_char and Store_Age_Years were not features in the trained model, so they are removed.
+    # Product_Type (original) is added as it was part of the training data.
     sample = {
         'Product_Weight': data['Product_Weight'],
         'Product_Sugar_Content': data['Product_Sugar_Content'],
@@ -30,8 +32,7 @@ def predict_sales():
         'Store_Size': data['Store_Size'],
         'Store_Location_City_Type': data['Store_Location_City_Type'],
         'Store_Type': data['Store_Type'],
-        'Product_Id_char': data.get('Product_Id_char', 'FD'), # Using get to handle optional keys
-        'Store_Age_Years': data.get('Store_Age_Years', 0),
+        'Product_Type': data['Product_Type'], # Ensure this matches the original Product_Type column
         'Product_Type_Category': data['Product_Type_Category']
     }
 
